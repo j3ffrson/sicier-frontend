@@ -6,20 +6,6 @@ import { authApi } from '../../api/authApi'
 import API_BASE_URL from '../../api/config'
 import { AuroraBackground } from '../../components/ui/aurora-background'
 
-const BRAYAN_USER = {
-  username: 'brayan',
-  password: '1234',
-  firstName: 'Brayan',
-  lastName: 'Osorio',
-  institutionalEmail: 'brayan@fesc.edu.co',
-  identifier: 1090123456,
-  phone: 3001234567,
-  area: 'Secretaria Academica',
-  roleRequest: {
-    roleList: ['FUNC'],
-  },
-}
-
 export default function Login() {
   const nav = useNavigate()
   const [email, setEmail] = useState('')
@@ -39,10 +25,10 @@ export default function Login() {
   async function handleAuthSuccess(response, username) {
     if (!response?.jwt) return false
 
-    const isAdmin = username === 'admin' || username === 'admin@fesc.edu.co'
+    const isAdmin = username === 'ADMIN' || username === 'admin@fesc.edu.co'
     setAuth({
       token: response.jwt,
-      role: isAdmin ? 'admin' : 'user',
+      role: isAdmin ? 'ADMIN' : 'FUNC',
       name: response.username || username,
       email: username,
     })
@@ -69,24 +55,6 @@ export default function Login() {
 
       setErr(response?.message || 'Credenciales incorrectas.')
     } catch (error) {
-      if (email === BRAYAN_USER.username && pass === BRAYAN_USER.password) {
-        try {
-          await authApi.register(BRAYAN_USER)
-        } catch (registerError) {
-          // If user already exists, login should work; ignore registration error.
-        }
-
-        try {
-          const response = await authApi.login(email, pass)
-          const ok = await handleAuthSuccess(response, email)
-          if (ok) return
-        } catch (loginError) {
-          setErr(resolveErrorMessage(loginError))
-          console.error('Login error:', loginError)
-          return
-        }
-      }
-
       setErr(resolveErrorMessage(error))
       console.error('Login error:', error)
     } finally {
@@ -150,10 +118,6 @@ export default function Login() {
                 {loading ? 'Entrando...' : 'Entrar'}
               </button>
             </form>
-
-            <div className="mt-4 text-xs" style={{ color: 'var(--fesc-muted)' }}>
-              Demo: brayan / 1234
-            </div>
           </div>
         </motion.div>
       </div>
