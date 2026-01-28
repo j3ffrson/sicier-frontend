@@ -22,15 +22,23 @@ export default function Login() {
     return `Credenciales incorrectas o backend no disponible. URL: ${API_BASE_URL}`
   }
 
-  async function handleAuthSuccess(response, username) {
+  async function handleAuthSuccess(response, usernameInput) {
     if (!response?.jwt) return false
 
-    const isAdmin = username === 'ADMIN' || username === 'admin@fesc.edu.co'
+    const isAdmin = usernameInput === 'ADMIN' || usernameInput === 'admin@fesc.edu.co'
+    
+    // Guardamos username y areaId para los WebSockets
+    // Usamos response.username si existe (preferible), o el input del usuario
+    const finalUsername = response.username || usernameInput
+
     setAuth({
       token: response.jwt,
       role: isAdmin ? 'ADMIN' : 'FUNC',
-      name: response.username || username,
-      email: username,
+      name: finalUsername,
+      email: usernameInput,
+      username: finalUsername, // Guardamos explícitamente para WebSockets
+      id: response.id,
+      areaId: response.areaId,
     })
 
     nav('/dashboard', { replace: true })

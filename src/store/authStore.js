@@ -24,3 +24,15 @@ export function isLoggedIn() {
 export function getRole() {
   return getAuth()?.role || null
 }
+
+export function getUserId() {
+  return getAuth()?.id || null
+}
+
+export function getUsername() {
+  return getAuth()?.username || null
+}
+
+export function getAreaId() {
+  return getAuth()?.areaId || null
+}

@@ -102,7 +102,7 @@ export default function Dashboard() {
             Buenos dias
           </h1>
           <p style={{ color: 'var(--fesc-muted)' }}>
-            Aqui tiene un resumen de su actividad de peticiones
+            Aqui tiene un resumen de su actividad de informes
           </p>
         </div>
 
@@ -110,9 +110,9 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard
             icon={InboxIcon}
-            label="Recibidas"
+            label="Recibidos"
             value={stats.received}
-            description="Total de peticiones entrantes"
+            description="Total de informes entrantes"
             color="#1a73e8"
             onClick={() => navigate('/requests/inbox')}
           />
@@ -120,23 +120,23 @@ export default function Dashboard() {
             icon={PendingIcon}
             label="Pendientes"
             value={stats.pending}
-            description="Peticiones sin respuesta"
+            description="Informes sin respuesta"
             color="#ea8600"
             onClick={() => navigate('/requests/inbox')}
           />
           <StatCard
             icon={CheckIcon}
-            label="Respondidas"
+            label="Respondidos"
             value={stats.answered}
-            description="Peticiones finalizadas"
+            description="Informes finalizados"
             color="#34a853"
             onClick={() => navigate('/requests/history')}
           />
           <StatCard
             icon={SendIcon}
-            label="Enviadas"
+            label="Enviados"
             value={stats.sent}
-            description="Peticiones que ha enviado"
+            description="Informes que ha enviado"
             color="var(--fesc-primary)"
             onClick={() => navigate('/requests/sent')}
           />
@@ -159,8 +159,8 @@ export default function Dashboard() {
                     <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                   </svg>
                 )}
-                label="Nueva peticion"
-                onClick={() => navigate('/requests/new')}
+                label="Nuevo informe"
+                onClick={() => navigate('/reports/new')}
               />
               <QuickAction
                 icon={InboxIcon}
@@ -189,9 +189,9 @@ export default function Dashboard() {
             </h2>
             <div className="space-y-3">
               {[
-                { title: 'Nueva peticion recibida', from: 'Secretaria Academica', time: 'Hace 10 min', unread: true },
-                { title: 'Peticion respondida', from: 'Bienestar Universitario', time: 'Hace 2 horas', unread: false },
-                { title: 'Nueva peticion recibida', from: 'Coordinacion de Sistemas', time: 'Ayer', unread: false },
+                { title: 'Nuevo informe recibido', from: 'Secretaria Academica', time: 'Hace 10 min', unread: true },
+                { title: 'Informe respondido', from: 'Bienestar Universitario', time: 'Hace 2 horas', unread: false },
+                { title: 'Nuevo informe recibido', from: 'Coordinacion de Sistemas', time: 'Ayer', unread: false },
               ].map((item, i) => (
                 <div
                   key={i}

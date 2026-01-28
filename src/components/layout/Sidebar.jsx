@@ -9,6 +9,12 @@ const InboxIcon = () => (
   </svg>
 )
 
+const ReportInboxIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
+  </svg>
+)
+
 const SendIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor">
     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
@@ -18,6 +24,12 @@ const SendIcon = () => (
 const HistoryIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor">
     <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+  </svg>
+)
+
+const ReportHistoryIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
   </svg>
 )
 
@@ -50,9 +62,11 @@ export default function Sidebar({ collapsed, onToggle }) {
   const navigate = useNavigate()
   
   const navItems = [
-    { label: 'Recibidas', to: '/requests/inbox', icon: InboxIcon, count: 5 },
+    { label: 'Peticiones Recibidas', to: '/requests/inbox', icon: InboxIcon, count: 5 },
+    { label: 'Informes Recibidos', to: '/reports/inbox', icon: ReportInboxIcon },
     { label: 'Enviadas', to: '/requests/sent', icon: SendIcon },
-    { label: 'Historial', to: '/requests/history', icon: HistoryIcon },
+    { label: 'Historial Peticiones', to: '/requests/history', icon: HistoryIcon },
+    { label: 'Historial Informes', to: '/reports/history', icon: ReportHistoryIcon },
     { label: 'Dashboard', to: '/dashboard', icon: DashboardIcon },
     { label: 'Gráficas', to: '/analytics/charts', icon: ChartIcon },
   ]
@@ -69,10 +83,10 @@ export default function Sidebar({ collapsed, onToggle }) {
         minWidth: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)',
       }}
     >
-      {/* Compose Button */}
-      <div className="p-3">
+      {/* Compose Buttons */}
+      <div className="p-3 space-y-2">
         <button
-          onClick={() => navigate('/requests/new')}
+          onClick={() => navigate('/reports/new')}
           className="compose-btn w-full"
           style={{
             justifyContent: collapsed ? 'center' : 'flex-start',
@@ -80,7 +94,20 @@ export default function Sidebar({ collapsed, onToggle }) {
           }}
         >
           <ComposeIcon />
-          {!collapsed && <span>Redactar</span>}
+          {!collapsed && <span>Nuevo Informe</span>}
+        </button>
+        <button
+          onClick={() => navigate('/requests/new')}
+          className="compose-btn w-full"
+          style={{
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            padding: collapsed ? '14px' : '14px 24px 14px 16px',
+            background: 'var(--fesc-secondary-bg)',
+            color: 'var(--fesc-secondary-text)',
+          }}
+        >
+          <ComposeIcon />
+          {!collapsed && <span>Nueva Petición</span>}
         </button>
       </div>
 

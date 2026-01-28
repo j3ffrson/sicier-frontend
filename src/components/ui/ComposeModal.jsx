@@ -31,7 +31,19 @@ const DeleteIcon = () => (
     </svg>
 )
 
-export default function ComposeModal({ isOpen, onClose, onSend, onMinimize, isSending = false }) {
+export default function ComposeModal({ 
+    isOpen, 
+    onClose, 
+    onSend, 
+    onMinimize, 
+    isSending = false,
+    placeholders = {
+        title: 'Nueva Petición',
+        to: 'area:ID o user:ID',
+        subject: 'Asunto de la petición',
+        body: 'Escriba su petición aquí...',
+    }
+}) {
     const [to, setTo] = useState('')
     const [subject, setSubject] = useState('')
     const [body, setBody] = useState('')
@@ -47,15 +59,9 @@ export default function ComposeModal({ isOpen, onClose, onSend, onMinimize, isSe
             return
         }
 
-        try {
-            await onSend?.({ to, subject, body })
-            setTo('')
-            setSubject('')
-            setBody('')
-            onClose?.()
-        } catch (err) {
-            console.error('Error sending:', err)
-        }
+        // We don't use a try-catch block here because the parent component
+        // is responsible for handling errors and setting `isSending`.
+        await onSend?.({ to, subject, body })
     }
 
     const handleMinimize = () => {
@@ -95,7 +101,7 @@ export default function ComposeModal({ isOpen, onClose, onSend, onMinimize, isSe
         >
             {/* Header */}
             <div className="header" onClick={isMinimized ? handleMinimize : undefined} style={{ cursor: isMinimized ? 'pointer' : 'default' }}>
-                <span>Nueva petición</span>
+                <span>{placeholders.title}</span>
                 <div className="header-actions">
                     <button onClick={handleMinimize} title={isMinimized ? 'Restaurar' : 'Minimizar'}>
                         <MinimizeIcon />
@@ -119,7 +125,7 @@ export default function ComposeModal({ isOpen, onClose, onSend, onMinimize, isSe
                                 type="text"
                                 value={to}
                                 onChange={(e) => setTo(e.target.value)}
-                                placeholder="area:ID o user:ID"
+                                placeholder={placeholders.to}
                                 disabled={isSending}
                             />
                         </div>
@@ -129,14 +135,14 @@ export default function ComposeModal({ isOpen, onClose, onSend, onMinimize, isSe
                                 type="text"
                                 value={subject}
                                 onChange={(e) => setSubject(e.target.value)}
-                                placeholder="Asunto de la petición"
+                                placeholder={placeholders.subject}
                                 disabled={isSending}
                             />
                         </div>
                         <textarea
                             value={body}
                             onChange={(e) => setBody(e.target.value)}
-                            placeholder="Escriba su petición aquí..."
+                            placeholder={placeholders.body}
                             style={{ minHeight: isExpanded ? 'calc(80vh - 200px)' : '200px' }}
                             disabled={isSending}
                         />

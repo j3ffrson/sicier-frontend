@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import AppShell from '../../components/layout/AppShell'
 import RequestRow from '../../components/ui/RequestRow'
 import RequestDetail from '../../components/ui/RequestDetail'
-import { informApi } from '../../api/informApi'
+import { requestApi } from '../../api/requestApi'
 import { normalizeRequestList } from '../../utils/requestMapper'
 
 // Icons
@@ -28,12 +28,12 @@ export default function History() {
     setLoading(true)
     setError('')
     try {
-      const data = await informApi.listGeneral(0, 50)
+      const data = await requestApi.listByUser(0, 50)
       const list = normalizeRequestList(data)
       setRequests(list)
     } catch (err) {
       console.error('Error loading history:', err)
-      setError('No se pudo cargar el historial.')
+      setError('No se pudo cargar el historial de peticiones.')
       setRequests([])
     } finally {
       setLoading(false)
@@ -121,7 +121,7 @@ export default function History() {
                   No hay peticiones en el historial
                 </p>
                 <p className="text-sm mt-2" style={{ color: 'var(--fesc-muted)' }}>
-                  Todas sus peticiones apareceran aqui
+                  Todas sus peticiones aparecerán aquí
                 </p>
               </div>
             )}

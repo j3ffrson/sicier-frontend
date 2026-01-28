@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import AppShell from '../../components/layout/AppShell'
 import RequestRow from '../../components/ui/RequestRow'
 import RequestDetail from '../../components/ui/RequestDetail'
-import { requestApi } from '../../api/requestApi'
+import { informApi } from '../../api/informApi'
 import { normalizeRequestList } from '../../utils/requestMapper'
 
 // Icons
@@ -18,22 +18,22 @@ const MoreIcon = () => (
   </svg>
 )
 
-export default function Inbox() {
+export default function History() {
   const [requests, setRequests] = useState([])
   const [selectedRequest, setSelectedRequest] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const loadInbox = useCallback(async () => {
+  const loadHistory = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const data = await requestApi.listByUserDestination(0, 50)
+      const data = await informApi.listByUser(0, 50)
       const list = normalizeRequestList(data)
       setRequests(list)
     } catch (err) {
-      console.error('Error loading inbox:', err)
-      setError('No se pudo cargar la bandeja de entrada de peticiones.')
+      console.error('Error loading history:', err)
+      setError('No se pudo cargar el historial de informes.')
       setRequests([])
     } finally {
       setLoading(false)
@@ -41,8 +41,8 @@ export default function Inbox() {
   }, [])
 
   useEffect(() => {
-    loadInbox()
-  }, [loadInbox])
+    loadHistory()
+  }, [loadHistory])
 
   const handleSelect = (id, selected) => {
     console.log('Selected:', id, selected)
@@ -77,7 +77,7 @@ export default function Inbox() {
               type="checkbox"
               className="w-[18px] h-[18px] cursor-pointer accent-[var(--fesc-primary)]"
             />
-            <button className="action-btn" title="Actualizar" onClick={loadInbox}>
+            <button className="action-btn" title="Actualizar" onClick={loadHistory}>
               <RefreshIcon />
             </button>
             <button className="action-btn" title="Mas opciones">
@@ -118,10 +118,10 @@ export default function Inbox() {
             {!loading && requests.length === 0 && (
               <div className="flex flex-col items-center justify-center h-64 text-center">
                 <p className="text-lg font-medium" style={{ color: 'var(--fesc-text)' }}>
-                  No hay peticiones recibidas
+                  No hay informes en el historial
                 </p>
                 <p className="text-sm mt-2" style={{ color: 'var(--fesc-muted)' }}>
-                  Las peticiones que reciba aparecerán aquí
+                  Todos sus informes aparecerán aquí
                 </p>
               </div>
             )}

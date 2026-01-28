@@ -2,8 +2,8 @@ import { useState, useCallback, useEffect } from 'react'
 import AppShell from '../../components/layout/AppShell'
 import ComposeModal from '../../components/ui/ComposeModal'
 import RequestRow from '../../components/ui/RequestRow'
-import { requestApi } from '../../api/requestApi'
-import { informApi } from '../../api/informApi' // Placeholder for listing requests
+import { informApi } from '../../api/informApi'
+import { sendInformApi } from '../../api/sendInformApi'
 import { normalizeRequestList } from '../../utils/requestMapper'
 
 function parseDestination(input) {
@@ -29,36 +29,35 @@ function parseDestination(input) {
   return null
 }
 
-const requestPlaceholders = {
-  title: 'Nueva Petición',
+const reportPlaceholders = {
+  title: 'Nuevo Informe',
   to: 'Destinatario (ej: area:3)',
-  subject: 'Asunto de la petición',
-  body: 'Escriba el contenido de la petición aquí...',
+  subject: 'Asunto del informe',
+  body: 'Escriba el contenido del informe aquí...',
 }
 
-export default function NewRequest() {
+export default function NewReport() {
   const [showModal, setShowModal] = useState(false)
   const [sending, setSending] = useState(false)
-  const [requests, setRequests] = useState([])
+  const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(false)
 
-  const loadSentRequests = useCallback(async () => {
+  const loadSentReports = useCallback(async () => {
     setLoading(true)
     try {
-      // TODO: Replace with a real requestApi endpoint when available
       const data = await informApi.listByUser(0, 50)
       const list = normalizeRequestList(data)
-      setRequests(list)
+      setReports(list)
     } catch (err) {
-      console.error('Error loading sent requests:', err)
+      console.error('Error loading sent reports:', err)
     } finally {
       setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    loadSentRequests()
-  }, [loadSentRequests])
+    loadSentReports()
+  }, [loadSentReports])
 
   const handleSend = async (data) => {
     const destination = parseDestination(data.to)
@@ -70,31 +69,32 @@ export default function NewRequest() {
 
     setSending(true)
     try {
-      const requestData = {
+      const draft = await informApi.createDraft()
+      const informId = draft?.id
+
+      if (!informId) {
+        throw new Error('No se pudo crear el borrador del informe. ID no recibido.')
+      }
+
+      const completeData = {
         title: data.subject,
         description: data.body,
+        status: 'COMPLETADO',
       }
+      await informApi.completeInform(informId, completeData)
 
       if (destination.type === 'area') {
-        // Corrección: areaDestId debe ser un array, igual que userDestId
-        await requestApi.createToArea({ 
-          ...requestData, 
-          areaDestId: destination.id
-        })
+        await sendInformApi.sendToArea(informId, [destination.id])
       } else {
-        // Corrección: userDestId debe ser un array
-        await requestApi.createToUser({ 
-          ...requestData, 
-          userDestId: destination.id
-        })
+        await sendInformApi.sendToUser(informId, [destination.id])
       }
 
-      alert('Petición enviada correctamente.')
+      alert('Informe enviado correctamente.')
       setShowModal(false)
-      loadSentRequests() // Refresh the list
+      loadSentReports() // Refresh the list
     } catch (err) {
-      console.error('Error sending request:', err)
-      alert('No se pudo enviar la petición.')
+      console.error('Error en el proceso de envío del informe:', err.message || err, err.response?.data || err.toJSON?.())
+      alert('No se pudo enviar el informe. Revise la consola para más detalles.')
     } finally {
       setSending(false)
     }
@@ -113,40 +113,40 @@ export default function NewRequest() {
             </svg>
           </div>
           <h2 className="text-xl font-medium mb-2" style={{ color: 'var(--fesc-text)' }}>
-            Nueva Petición
+            Elaboración de Informes
           </h2>
           <p className="text-sm mb-6" style={{ color: 'var(--fesc-muted)' }}>
-            Redacte una solicitud de informe. Sus peticiones enviadas recientemente aparecerán a continuación.
+            Aquí puede redactar y enviar nuevos informes. Sus informes enviados recientemente aparecerán a continuación.
           </p>
           <button
             onClick={() => setShowModal(true)}
             className="px-6 py-3 rounded-lg font-medium text-white"
             style={{ background: 'var(--fesc-primary)' }}
           >
-            Redactar Nueva Petición
+            Redactar Nuevo Informe
           </button>
         </div>
 
         <div className="bg-white rounded-xl border" style={{ borderColor: 'var(--fesc-border-light)' }}>
           <h3 className="text-lg font-medium p-4 border-b" style={{ color: 'var(--fesc-text)', borderColor: 'var(--fesc-border-light)' }}>
-            Peticiones Enviadas Recientemente
+            Informes Enviados Recientemente
           </h3>
           <div className="flex-1 overflow-y-auto">
-            {loading && requests.length === 0 && (
+            {loading && reports.length === 0 && (
               <div className="p-8 text-center text-sm" style={{ color: 'var(--fesc-muted)' }}>
-                Cargando peticiones...
+                Cargando informes...
               </div>
             )}
-            {requests.map((request) => (
-              <RequestRow key={request.id} {...request} />
+            {reports.map((report) => (
+              <RequestRow key={report.id} {...report} />
             ))}
-            {!loading && requests.length === 0 && (
+            {!loading && reports.length === 0 && (
               <div className="p-8 text-center">
                 <p className="font-medium" style={{ color: 'var(--fesc-text)' }}>
-                  No ha enviado peticiones
+                  No ha enviado informes
                 </p>
-                <p className="text-sm mt-1" style={{ color: 'var(--f-muted)' }}>
-                  Cuando envíe una petición, aparecerá aquí.
+                <p className="text-sm mt-1" style={{ color: 'var(--fesc-muted)' }}>
+                  Cuando envíe un informe, aparecerá aquí.
                 </p>
               </div>
             )}
@@ -159,7 +159,7 @@ export default function NewRequest() {
         onClose={() => setShowModal(false)}
         onSend={handleSend}
         isSending={sending}
-        placeholders={requestPlaceholders}
+        placeholders={reportPlaceholders}
       />
     </AppShell>
   )

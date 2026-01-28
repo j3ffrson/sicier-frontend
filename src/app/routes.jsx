@@ -5,9 +5,12 @@ import AdminRoute from './AdminRoute'
 import Login from '../pages/auth/Login'
 import Dashboard from '../pages/dashboard/Dashboard'
 import NewRequest from '../pages/requests/NewRequest'
-import Inbox from '../pages/requests/Inbox'
+import NewReport from '../pages/reports/NewReport'
+import RequestInbox from '../pages/requests/Inbox'
+import ReportInbox from '../pages/reports/Inbox'
 import Sent from '../pages/requests/Sent'
-import History from '../pages/requests/History'
+import RequestHistory from '../pages/requests/History'
+import ReportHistory from '../pages/reports/History'
 import Charts from '../pages/analytics/Charts'
 import Users from '../pages/admin/Users'
 
@@ -35,10 +38,26 @@ export default function AppRoutes() {
         }
       />
       <Route
+        path="/reports/new"
+        element={
+          <ProtectedRoute>
+            <NewReport />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/requests/inbox"
         element={
           <ProtectedRoute>
-            <Inbox />
+            <RequestInbox />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports/inbox"
+        element={
+          <ProtectedRoute>
+            <ReportInbox />
           </ProtectedRoute>
         }
       />
@@ -54,7 +73,15 @@ export default function AppRoutes() {
         path="/requests/history"
         element={
           <ProtectedRoute>
-            <History />
+            <RequestHistory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports/history"
+        element={
+          <ProtectedRoute>
+            <ReportHistory />
           </ProtectedRoute>
         }
       />

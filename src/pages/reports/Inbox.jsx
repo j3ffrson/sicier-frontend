@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import AppShell from '../../components/layout/AppShell'
 import RequestRow from '../../components/ui/RequestRow'
 import RequestDetail from '../../components/ui/RequestDetail'
-import { requestApi } from '../../api/requestApi'
+import { informApi } from '../../api/informApi'
 import { normalizeRequestList } from '../../utils/requestMapper'
 
 // Icons
@@ -28,12 +28,24 @@ export default function Inbox() {
     setLoading(true)
     setError('')
     try {
-      const data = await requestApi.listByUserDestination(0, 50)
-      const list = normalizeRequestList(data)
-      setRequests(list)
+      const [userData, areaData] = await Promise.all([
+        informApi.listByUserState('RECIBIDO'),
+        informApi.listByAreaState('RECIBIDO'),
+      ])
+
+      const list = [
+        ...normalizeRequestList(userData),
+        ...normalizeRequestList(areaData),
+      ]
+
+      const unique = Array.from(
+        new Map(list.map((item) => [item.id, item])).values()
+      )
+
+      setRequests(unique)
     } catch (err) {
       console.error('Error loading inbox:', err)
-      setError('No se pudo cargar la bandeja de entrada de peticiones.')
+      setError('No se pudo cargar la bandeja de entrada de informes.')
       setRequests([])
     } finally {
       setLoading(false)
@@ -118,10 +130,10 @@ export default function Inbox() {
             {!loading && requests.length === 0 && (
               <div className="flex flex-col items-center justify-center h-64 text-center">
                 <p className="text-lg font-medium" style={{ color: 'var(--fesc-text)' }}>
-                  No hay peticiones recibidas
+                  No hay informes recibidos
                 </p>
                 <p className="text-sm mt-2" style={{ color: 'var(--fesc-muted)' }}>
-                  Las peticiones que reciba aparecerán aquí
+                  Los informes que reciba aparecerán aquí
                 </p>
               </div>
             )}
