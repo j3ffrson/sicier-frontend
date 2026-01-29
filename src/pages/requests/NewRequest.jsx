@@ -89,7 +89,6 @@ export default function NewRequest() {
         })
       }
 
-      alert('Petición enviada correctamente.')
       setShowModal(false)
       loadSentRequests() // Refresh the list
     } catch (err) {

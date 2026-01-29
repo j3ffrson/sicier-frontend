@@ -89,7 +89,7 @@ export default function NewReport() {
         await sendInformApi.sendToUser(informId, [destination.id])
       }
 
-      alert('Informe enviado correctamente.')
+      // alert('Informe enviado correctamente.') // Eliminado
       setShowModal(false)
       loadSentReports() // Refresh the list
     } catch (err) {
