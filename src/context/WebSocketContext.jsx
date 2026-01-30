@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
-import { getUsername, getAreaId, isLoggedIn } from '../store/authStore'
+import { getUsername, getAreaName, isLoggedIn } from '../store/authStore'
 import { WebSocketContext } from './SocketContext'
 
 // Para producción, esta variable debe definirse en el entorno (ej: .env.production)
@@ -12,7 +12,7 @@ export const WebSocketProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([])
   const clientRef = useRef(null)
   const username = getUsername()
-  const areaId = getAreaId()
+  const areaName = getAreaName()
   const loggedIn = isLoggedIn()
   const navigate = useNavigate()
 
@@ -29,8 +29,9 @@ export const WebSocketProvider = ({ children }) => {
           handleMessage(JSON.parse(message.body))
         })
 
-        if (areaId) {
-          client.subscribe(`/topic/area/${areaId}`, (message) => {
+        if (areaName) {
+          console.log('Suscribiendo a área:', areaName)
+          client.subscribe(`/topic/area/${areaName}`, (message) => {
             handleMessage(JSON.parse(message.body))
           })
         }
@@ -48,7 +49,7 @@ export const WebSocketProvider = ({ children }) => {
         clientRef.current.deactivate()
       }
     }
-  }, [loggedIn, username, areaId])
+  }, [loggedIn, username, areaName])
 
   const handleMessage = (notification) => {
     console.log('Notificación recibida:', notification)

@@ -15,4 +15,14 @@ export const authApi = {
     const response = await apiClient.post(`/auth/update/user/${id}`, data)
     return response.data
   },
+
+  listUser: async () => {
+    const response = await apiClient.get(`/auth/list/user`)
+    return response.data
+  },
+
+  userPerfil: async () => {
+    const response = await apiClient.get(`/auth/find/user/loged`)
+    return response.data
+  }
 }

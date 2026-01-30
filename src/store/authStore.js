@@ -36,3 +36,7 @@ export function getUsername() {
 export function getAreaId() {
   return getAuth()?.areaId || null
 }
+
+export function getAreaName() {
+  return getAuth()?.areaName || null
+}

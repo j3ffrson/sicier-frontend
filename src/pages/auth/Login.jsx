@@ -25,20 +25,24 @@ export default function Login() {
   async function handleAuthSuccess(response, usernameInput) {
     if (!response?.jwt) return false
 
-    const isAdmin = usernameInput === 'ADMIN' || usernameInput === 'admin@fesc.edu.co'
+    // Lógica real basada en los roles del backend
+    const roles = response.roles || []
+    const isAdmin = roles.includes('ADMIN')
     
-    // Guardamos username y areaId para los WebSockets
-    // Usamos response.username si existe (preferible), o el input del usuario
+    // Guardamos username y areaName para los WebSockets
     const finalUsername = response.username || usernameInput
+    
+    // Extraer nombre del área de forma segura
+    // Puede venir como objeto { name: '...' } o string directo
+    const areaName = response.area?.name || (typeof response.area === 'string' ? response.area : null)
 
     setAuth({
       token: response.jwt,
       role: isAdmin ? 'ADMIN' : 'FUNC',
       name: finalUsername,
       email: usernameInput,
-      username: finalUsername, // Guardamos explícitamente para WebSockets
-      id: response.id,
-      areaId: response.areaId,
+      username: finalUsername,
+      areaName: areaName, // Guardamos el nombre del área para WebSockets
     })
 
     nav('/dashboard', { replace: true })

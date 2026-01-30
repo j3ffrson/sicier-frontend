@@ -13,6 +13,7 @@ import RequestHistory from '../pages/requests/History'
 import ReportHistory from '../pages/reports/History'
 import Charts from '../pages/analytics/Charts'
 import Users from '../pages/admin/Users'
+import Profile from '../pages/auth/Profile'
 
 export default function AppRoutes() {
   return (
@@ -26,6 +27,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />
