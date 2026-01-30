@@ -24,5 +24,10 @@ export const authApi = {
   userPerfil: async () => {
     const response = await apiClient.get(`/auth/find/user/loged`)
     return response.data
+  },
+
+  findById: async (id) => {
+    const response = await apiClient.get(`/auth/user/${id}`)
+    return response.data
   }
 }

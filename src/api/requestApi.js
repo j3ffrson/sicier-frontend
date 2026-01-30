@@ -32,4 +32,9 @@ export const requestApi = {
     const response = await apiClient.post(`/request/reply/${id}`, data)
     return response.data
   },
+
+  getById: async (id) => {
+    const response = await apiClient.get(`/request/${id}`)
+    return response.data
+  }
 }

@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import AppShell from '../../components/layout/AppShell'
 import { useNavigate } from 'react-router-dom'
 import { informApi } from '../../api/informApi'
+import { auditApi } from '../../api/auditApi'
 import { normalizeRequestList } from '../../utils/requestMapper'
+import { getRole } from '../../store/authStore'
 
 // Icons
 const InboxIcon = () => (
@@ -68,9 +70,14 @@ function QuickAction({ icon: Icon, label, onClick }) {
 export default function Dashboard() {
   const navigate = useNavigate()
   const [stats, setStats] = useState({ received: 0, pending: 0, answered: 0, sent: 0 })
+  const [activities, setActivities] = useState([])
+  const [loadingActivities, setLoadingActivities] = useState(true)
+  const role = getRole()
+  const isAdmin = role === 'ADMIN' || role === 'admin'
 
-  const loadStats = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
+      // Cargar estadísticas
       const [inboxData, pendingData, answeredData, sentData] = await Promise.all([
         informApi.listByAreaState('RECIBIDO'),
         informApi.listByAreaState('OBSERVADO'),
@@ -84,14 +91,37 @@ export default function Dashboard() {
         answered: normalizeRequestList(answeredData).length,
         sent: normalizeRequestList(sentData).length,
       })
+
+      // Cargar actividad reciente solo si es admin
+      if (isAdmin) {
+        setLoadingActivities(true)
+        try {
+          const operations = await auditApi.listOperations()
+          // Asumimos que operations es una lista. Tomamos los últimos 5.
+          const recentOps = Array.isArray(operations) ? operations.slice(0, 5) : []
+          setActivities(recentOps)
+        } catch (auditError) {
+          console.error('Error loading audit operations:', auditError)
+        } finally {
+          setLoadingActivities(false)
+        }
+      }
+
     } catch (err) {
-      console.error('Error loading stats:', err)
+      console.error('Error loading dashboard data:', err)
     }
-  }, [])
+  }, [isAdmin])
 
   useEffect(() => {
-    loadStats()
-  }, [loadStats])
+    loadData()
+  }, [loadData])
+
+  // Helper para formatear fecha (asumiendo formato YYYY-MM-DD HH:mm:ss)
+  const formatDate = (dateString) => {
+    if (!dateString) return ''
+    // Si la fecha ya viene formateada legible, la devolvemos tal cual, o intentamos parsearla
+    return dateString
+  }
 
   return (
     <AppShell>
@@ -143,7 +173,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions & Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={`grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-3' : 'lg:grid-cols-1'} gap-6`}>
           {/* Quick Actions */}
           <div
             className="bg-white rounded-xl border p-4"
@@ -179,43 +209,47 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Recent Activity */}
-          <div
-            className="lg:col-span-2 bg-white rounded-xl border p-4"
-            style={{ borderColor: 'var(--fesc-border-light)' }}
-          >
-            <h2 className="text-lg font-medium mb-4" style={{ color: 'var(--fesc-text)' }}>
-              Actividad reciente
-            </h2>
-            <div className="space-y-3">
-              {[
-                { title: 'Nuevo informe recibido', from: 'Secretaria Academica', time: 'Hace 10 min', unread: true },
-                { title: 'Informe respondido', from: 'Bienestar Universitario', time: 'Hace 2 horas', unread: false },
-                { title: 'Nuevo informe recibido', from: 'Coordinacion de Sistemas', time: 'Ayer', unread: false },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-4 p-3 rounded-lg transition-colors cursor-pointer hover:bg-[var(--fesc-hover)]"
-                >
-                  <div
-                    className="w-2 h-2 rounded-full flex-shrink-0"
-                    style={{ background: item.unread ? 'var(--fesc-primary)' : 'transparent' }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate" style={{ color: 'var(--fesc-text)' }}>
-                      {item.title}
-                    </p>
-                    <p className="text-sm truncate" style={{ color: 'var(--fesc-muted)' }}>
-                      {item.from}
-                    </p>
-                  </div>
-                  <span className="text-xs flex-shrink-0" style={{ color: 'var(--fesc-muted)' }}>
-                    {item.time}
-                  </span>
-                </div>
-              ))}
+          {/* Recent Activity - Only for Admin */}
+          {isAdmin && (
+            <div
+              className="lg:col-span-2 bg-white rounded-xl border p-4"
+              style={{ borderColor: 'var(--fesc-border-light)' }}
+            >
+              <h2 className="text-lg font-medium mb-4" style={{ color: 'var(--fesc-text)' }}>
+                Actividad reciente (Auditoría)
+              </h2>
+              <div className="space-y-3">
+                {loadingActivities ? (
+                  <p className="text-sm text-gray-500 text-center py-4">Cargando actividad...</p>
+                ) : activities.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-4">No hay actividad reciente</p>
+                ) : (
+                  activities.map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-4 p-3 rounded-lg transition-colors cursor-pointer hover:bg-[var(--fesc-hover)]"
+                    >
+                      <div
+                        className="w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ background: 'var(--fesc-primary)' }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate" style={{ color: 'var(--fesc-text)' }}>
+                          {item.operation} - {item.objectName}
+                        </p>
+                        <p className="text-sm truncate" style={{ color: 'var(--fesc-muted)' }}>
+                          Usuario: {item.username}
+                        </p>
+                      </div>
+                      <span className="text-xs flex-shrink-0" style={{ color: 'var(--fesc-muted)' }}>
+                        {formatDate(item.date)}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </AppShell>

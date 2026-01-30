@@ -26,6 +26,18 @@ const HelpIcon = () => (
   </svg>
 )
 
+const ProfileIcon = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+  </svg>
+)
+
+const LogoutIcon = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+  </svg>
+)
+
 export default function Topbar({ onMenuClick }) {
   const nav = useNavigate()
   const auth = getAuth()
@@ -92,7 +104,7 @@ export default function Topbar({ onMenuClick }) {
 
         <div className="relative ml-2 group">
           <div
-            className="avatar"
+            className="avatar cursor-pointer"
             title={auth?.name || 'Usuario'}
           >
             {initials}
@@ -100,7 +112,11 @@ export default function Topbar({ onMenuClick }) {
 
           {/* Dropdown */}
           <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50" style={{ borderColor: 'var(--fesc-border)' }}>
-            <div className="p-4 border-b" style={{ borderColor: 'var(--fesc-border)' }}>
+            <div 
+              className="p-4 border-b cursor-pointer hover:bg-gray-50 transition-colors" 
+              style={{ borderColor: 'var(--fesc-border)' }}
+              onClick={() => nav('/profile')}
+            >
               <div className="flex items-center gap-3">
                 <div className="avatar w-12 h-12 text-lg">{initials}</div>
                 <div>
@@ -113,14 +129,25 @@ export default function Topbar({ onMenuClick }) {
                 </div>
               </div>
             </div>
-            <div className="p-2">
+            <div className="p-2 space-y-1">
+              <button
+                onClick={() => nav('/profile')}
+                className="w-full text-left px-4 py-2 rounded-md text-sm transition-colors flex items-center gap-3"
+                style={{ color: 'var(--fesc-text)' }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--fesc-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                <ProfileIcon />
+                Mi Perfil
+              </button>
               <button
                 onClick={logout}
-                className="w-full text-left px-4 py-2 rounded-md text-sm transition-colors"
+                className="w-full text-left px-4 py-2 rounded-md text-sm transition-colors flex items-center gap-3"
                 style={{ color: 'var(--fesc-text)' }}
-                onMouseEnter={(e) => e.target.style.background = 'var(--fesc-hover)'}
-                onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--fesc-hover)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
+                <LogoutIcon />
                 Cerrar sesión
               </button>
             </div>
